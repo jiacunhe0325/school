@@ -59,6 +59,11 @@ const ManagementFlowPage = () => {
     setSelectedOA(null);
   };
 
+  // 学业质量大盘
+  const [academicGradeFilter, setAcademicGradeFilter] = useState('高一');
+  const [academicSubjectFilter, setAcademicSubjectFilter] = useState('全部');
+  const [selectedAcademicRisk, setSelectedAcademicRisk] = useState(null);
+
   const navigateHome = () => {
     if (window.navigateToPage) window.navigateToPage('home');
     else window.location.pathname = '/';
@@ -417,17 +422,166 @@ const ManagementFlowPage = () => {
 
           {/* TAB: ACADEMIC */}
           {activeTab === 'academic' && (
-            <div className="space-y-6 animate-fade-in max-w-6xl mx-auto pb-10">
+            <div className="space-y-6 animate-fade-in max-w-6xl mx-auto pb-10 relative">
                <div className="flex justify-between items-end mb-6">
                  <div>
                    <h3 className="text-2xl font-black text-white flex items-center gap-2"><PieChart className="text-blue-400"/> 跨学段学业质量追踪大盘</h3>
                    <p className="text-slate-400 mt-1">脱离单一算分，AI 多维网络分析薄弱知识点及拔尖苗子长效追踪。</p>
                  </div>
+                 <div className="flex gap-3">
+                   <select 
+                     className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-blue-500/50"
+                     value={academicGradeFilter}
+                     onChange={(e) => setAcademicGradeFilter(e.target.value)}
+                   >
+                     <option value="全校">全校</option>
+                     <option value="高一">高一年级</option>
+                     <option value="高二">高二年级</option>
+                     <option value="高三">高三年级</option>
+                   </select>
+                   <select 
+                     className="px-4 py-2 bg-white/5 border border-white/10 rounded-xl text-sm text-white focus:outline-none focus:border-blue-500/50"
+                     value={academicSubjectFilter}
+                     onChange={(e) => setAcademicSubjectFilter(e.target.value)}
+                   >
+                     <option value="全部">全部学科</option>
+                     <option value="语文">语文</option>
+                     <option value="数学">数学</option>
+                     <option value="英语">英语</option>
+                     <option value="物理">物理</option>
+                   </select>
+                 </div>
                </div>
-               <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-16 text-center text-slate-500">
-                 <LineChart className="w-16 h-16 mx-auto mb-4 text-white/10" />
-                 市级联考成绩入库中，知识图谱分析大盘加载完毕即将呈现...
+
+               {/* Overview Cards */}
+               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                 <div className="bg-gradient-to-br from-blue-500/10 to-transparent border border-blue-500/20 rounded-2xl p-6">
+                   <div className="text-sm font-medium text-blue-300 mb-2">年级均分趋势 (较上月)</div>
+                   <div className="flex items-end gap-3">
+                     <span className="text-4xl font-black text-white">82.5</span>
+                     <span className="text-sm font-bold text-green-400 flex items-center"><TrendingUp className="w-4 h-4 mr-1"/>+2.3%</span>
+                   </div>
+                   <div className="mt-4 h-1 w-full bg-white/10 rounded-full overflow-hidden">
+                     <div className="h-full bg-blue-500 w-[82.5%]"></div>
+                   </div>
+                 </div>
+                 <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-6">
+                   <div className="text-sm font-medium text-slate-400 mb-2">知识网络健康度</div>
+                   <div className="flex items-end gap-3">
+                     <span className="text-4xl font-black text-white">94</span>
+                     <span className="text-sm text-slate-500 mb-1">/ 100</span>
+                   </div>
+                   <p className="text-xs text-slate-500 mt-3">全校共覆盖 2,450 个主干知识点</p>
+                 </div>
+                 <div className="bg-rose-500/10 border border-rose-500/20 rounded-2xl p-6">
+                   <div className="text-sm font-medium text-rose-300 mb-2">急需关注的高危知识点</div>
+                   <div className="flex items-end gap-3">
+                     <span className="text-4xl font-black text-rose-400">3</span>
+                     <span className="text-sm text-slate-500 mb-1">个班级触发预警</span>
+                   </div>
+                   <p className="text-xs text-rose-300/70 mt-3">主要集中在理科逻辑推演维度</p>
+                 </div>
                </div>
+
+               {/* Weak Points Alert List */}
+               <h4 className="text-lg font-bold text-white mb-4 flex items-center gap-2">
+                 <AlertTriangle className="w-5 h-5 text-orange-400"/> AI 薄弱知识点预警
+               </h4>
+               <div className="grid gap-4">
+                 {[
+                   { id: 1, class: '高一(1)班', subject: '数学', point: '应用题步骤表达', issue: '题干信息整理与列式顺序判断不稳定', impact: '影响该班 45% 学生', level: 'high' },
+                   { id: 2, class: '高一(4)班', subject: '物理', point: '牛顿第二定律综合', issue: '对多体系统受力分析缺乏整体隔离法思维', impact: '影响该班 38% 学生', level: 'high' },
+                   { id: 3, class: '高二(3)班', subject: '英语', point: '完形填空长难句', issue: '非谓语动词作定语/状语判断失误率极高', impact: '影响该班 60% 学生', level: 'medium' },
+                 ].map(risk => (
+                   <div 
+                     key={risk.id}
+                     onClick={() => setSelectedAcademicRisk(risk)}
+                     className="flex items-center justify-between p-5 bg-white/[0.03] border border-white/10 rounded-2xl hover:border-blue-500/30 hover:bg-white/[0.05] transition-all cursor-pointer group"
+                   >
+                     <div className="flex items-center gap-5">
+                       <div className={`w-2 h-12 rounded-full ${risk.level === 'high' ? 'bg-rose-500' : 'bg-orange-400'}`}></div>
+                       <div>
+                         <div className="flex items-center gap-3 mb-1">
+                           <span className="font-bold text-white">{risk.class}</span>
+                           <span className="text-xs font-semibold px-2 py-0.5 rounded bg-blue-500/20 text-blue-300 border border-blue-500/30">{risk.subject}</span>
+                           <span className="text-sm font-medium text-slate-300">{risk.point}</span>
+                         </div>
+                         <div className="text-sm text-slate-400">{risk.issue}</div>
+                       </div>
+                     </div>
+                     <div className="flex items-center gap-6">
+                       <span className="text-sm text-slate-500">{risk.impact}</span>
+                       <button className="flex items-center gap-1 text-sm font-medium text-blue-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                         查看归因 <ArrowRight className="w-4 h-4"/>
+                       </button>
+                     </div>
+                   </div>
+                 ))}
+               </div>
+
+               {/* Drill-down Modal/Slide-over */}
+               {selectedAcademicRisk && (
+                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                   <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedAcademicRisk(null)}></div>
+                   <div className="relative w-full max-w-2xl bg-[#0f172a] border border-slate-700 rounded-3xl p-8 shadow-2xl shadow-blue-900/20 animate-fade-in">
+                     <button 
+                       onClick={() => setSelectedAcademicRisk(null)}
+                       className="absolute top-6 right-6 p-2 text-slate-400 hover:text-white bg-white/5 rounded-full transition-colors"
+                     >
+                       <XCircle className="w-6 h-6"/>
+                     </button>
+                     
+                     <div className="flex items-center gap-3 mb-6">
+                       <div className="p-3 bg-rose-500/20 rounded-2xl border border-rose-500/30">
+                         <Activity className="w-6 h-6 text-rose-400"/>
+                       </div>
+                       <div>
+                         <h3 className="text-2xl font-black text-white">{selectedAcademicRisk.point}</h3>
+                         <div className="text-sm text-slate-400 mt-1">{selectedAcademicRisk.class} · {selectedAcademicRisk.subject}</div>
+                       </div>
+                     </div>
+
+                     <div className="space-y-6">
+                       <div className="bg-white/5 rounded-2xl p-5 border border-white/5">
+                         <h4 className="text-sm font-bold text-slate-300 mb-3 flex items-center gap-2"><Brain className="w-4 h-4 text-purple-400"/> AI 深度归因</h4>
+                         <p className="text-sm text-slate-300 leading-relaxed">
+                           该知识点得分率显著低于同层次班级（偏差值 -12%）。<br/>
+                           经大模型分析学生历次作业轨迹：<span className="text-white font-medium">{selectedAcademicRisk.issue}</span>。<br/>
+                           这并非计算能力不足，而是阅读理解与数学符号转译的衔接环节存在集体性方法缺失。
+                         </p>
+                       </div>
+
+                       <div>
+                         <h4 className="text-sm font-bold text-slate-300 mb-3 flex items-center gap-2"><Network className="w-4 h-4 text-blue-400"/> 跨角色干预流转状态</h4>
+                         <div className="space-y-3">
+                           <div className="flex items-center gap-3 p-3 bg-blue-500/10 border border-blue-500/20 rounded-xl">
+                             <CheckCircle2 className="w-5 h-5 text-blue-400"/>
+                             <div className="flex-1">
+                               <div className="text-sm font-bold text-blue-100">已推送给授课教师</div>
+                               <div className="text-xs text-blue-300/70 mt-0.5">提供专属变式训练题包及备课教案补充建议。</div>
+                             </div>
+                           </div>
+                           <div className="flex items-center gap-3 p-3 bg-purple-500/10 border border-purple-500/20 rounded-xl">
+                             <CheckCircle2 className="w-5 h-5 text-purple-400"/>
+                             <div className="flex-1">
+                               <div className="text-sm font-bold text-purple-100">已调度至学生端「自适应任务流」</div>
+                               <div className="text-xs text-purple-300/70 mt-0.5">插入了 2 道前置引导性概念题，暂缓直接进行拔高训练。</div>
+                             </div>
+                           </div>
+                           <div className="flex items-center gap-3 p-3 bg-orange-500/10 border border-orange-500/20 rounded-xl">
+                             <Clock className="w-5 h-5 text-orange-400"/>
+                             <div className="flex-1">
+                               <div className="text-sm font-bold text-orange-100">待推送至家长端沟通建议</div>
+                               <div className="text-xs text-orange-300/70 mt-0.5">建议家长本周关注孩子应用题步骤表达，是否一键发送话术？</div>
+                             </div>
+                             <button className="px-3 py-1.5 bg-orange-500 text-white text-xs font-bold rounded-lg shadow-md hover:bg-orange-400">一键发送</button>
+                           </div>
+                         </div>
+                       </div>
+                     </div>
+                   </div>
+                 </div>
+               )}
             </div>
           )}
 
