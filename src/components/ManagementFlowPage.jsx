@@ -9,7 +9,7 @@ import {
   Home, Zap, Package, Bug, Server, GitPullRequest,
   HeartHandshake, Orbit, Star, Network, Database,
   Sparkles, Brain, PenTool, TrendingUp, Bot, ThumbsUp,
-  Award, Calendar, Library, Activity, MessageSquare, HeartPulse, Stethoscope, FileSearch, PieChart
+  Award, Calendar, Library, Activity, MessageSquare, HeartPulse, Stethoscope, FileSearch, PieChart, Filter, User, Palette, Dumbbell, Rocket, BarChart2
 } from 'lucide-react';
 
 const SidebarItem = ({ icon: Icon, label, active, onClick }) => (
@@ -69,10 +69,17 @@ const ManagementFlowPage = () => {
   const [selectedAuditStudent, setSelectedAuditStudent] = useState(null);
   const [archiveStatus, setArchiveStatus] = useState('checking'); // checking, ready, archiving, done
 
+  // 资源审核中心
+  const [selectedResourceAudit, setSelectedResourceAudit] = useState(null);
+  const [resourceFilter, setResourceFilter] = useState('all');
+
   const navigateHome = () => {
     if (window.navigateToPage) window.navigateToPage('home');
     else window.location.pathname = '/';
   };
+
+  // 科体美统筹中心
+  const [techFilter, setTechFilter] = useState('all');
 
   return (
     <div className="flex h-screen bg-[#030712] font-sans selection:bg-indigo-500/30 overflow-hidden text-slate-300">
@@ -898,14 +905,246 @@ const ManagementFlowPage = () => {
             <div className="space-y-6 animate-fade-in max-w-6xl mx-auto pb-10">
                <div className="flex justify-between items-end mb-6">
                  <div>
-                   <h3 className="text-2xl font-black text-white flex items-center gap-2"><Library className="text-teal-400"/> 校本题库与生成式课件审核</h3>
-                   <p className="text-slate-400 mt-1">对全校教师使用 AI 生成的课件、题库进行版权与合规审核，沉淀学校数字教研资产。</p>
+                   <h3 className="text-2xl font-black text-white flex items-center gap-2"><Library className="text-teal-400"/> 校本题库与教研数字资产审核中枢</h3>
+                   <p className="text-slate-400 mt-1">拦截并过滤低质量、高重复率的生成式资源，沉淀具备本校学情特色的精品数字教研资产。</p>
                  </div>
                </div>
-               <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-16 text-center text-slate-500">
-                 <Library className="w-16 h-16 mx-auto mb-4 text-white/10" />
-                 待审核的 AI 生成课件列表 (空)
+
+               {/* Asset Overview */}
+               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                 <div className="bg-gradient-to-br from-teal-500/10 to-transparent border border-teal-500/20 rounded-2xl p-6 relative overflow-hidden">
+                   <div className="absolute top-0 right-0 p-4 opacity-10">
+                     <FileText className="w-16 h-16" />
+                   </div>
+                   <div className="text-sm font-medium text-teal-300 mb-2">待审核队列</div>
+                   <div className="flex items-end gap-3">
+                     <span className="text-4xl font-black text-white">24</span>
+                     <span className="text-sm text-slate-400 mb-1">份 (昨日新增 12)</span>
+                   </div>
+                 </div>
+                 <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-6 relative overflow-hidden">
+                   <div className="absolute top-0 right-0 p-4 opacity-10">
+                     <Database className="w-16 h-16" />
+                   </div>
+                   <div className="text-sm font-medium text-slate-400 mb-2">本学期已入库资产</div>
+                   <div className="flex items-end gap-3">
+                     <span className="text-4xl font-black text-white">1,482</span>
+                     <span className="text-sm font-bold text-teal-400 mb-1 flex items-center"><TrendingUp className="w-4 h-4 mr-1"/>覆盖 9 个学科</span>
+                   </div>
+                 </div>
+                 <div className="bg-rose-500/10 border border-rose-500/20 rounded-2xl p-6 relative overflow-hidden">
+                   <div className="absolute top-0 right-0 p-4 opacity-10">
+                     <ShieldCheck className="w-16 h-16" />
+                   </div>
+                   <div className="text-sm font-medium text-rose-300 mb-2">AI 机审拦截预警</div>
+                   <div className="flex items-end gap-3">
+                     <span className="text-4xl font-black text-rose-400">8</span>
+                     <span className="text-sm text-rose-300/70 mb-1">份 (含查重/敏感词风险)</span>
+                   </div>
+                 </div>
                </div>
+
+               {/* Resource Filters & List */}
+               <div className="bg-[#0f172a] border border-teal-500/20 rounded-3xl p-6 shadow-2xl">
+                 <div className="flex justify-between items-center mb-6">
+                   <h4 className="text-lg font-bold text-white flex items-center gap-2">
+                     <Filter className="w-5 h-5 text-teal-400"/> 待审资源队列
+                   </h4>
+                   <div className="flex bg-white/5 rounded-lg p-1">
+                     <button 
+                       className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${resourceFilter === 'all' ? 'bg-teal-500 text-white' : 'text-slate-400 hover:text-white'}`}
+                       onClick={() => setResourceFilter('all')}
+                     >全部</button>
+                     <button 
+                       className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${resourceFilter === 'courseware' ? 'bg-teal-500 text-white' : 'text-slate-400 hover:text-white'}`}
+                       onClick={() => setResourceFilter('courseware')}
+                     >课件 (PPT)</button>
+                     <button 
+                       className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${resourceFilter === 'question' ? 'bg-teal-500 text-white' : 'text-slate-400 hover:text-white'}`}
+                       onClick={() => setResourceFilter('question')}
+                     >题库</button>
+                   </div>
+                 </div>
+
+                 <div className="space-y-3">
+                   {[
+                     { id: 'R1', title: '《牛顿第二定律综合应用》复习课件', author: '陈红 (高一物理)', type: 'courseware', label: '课件', aiStatus: 'warn', aiMsg: '网文查重率 85%', date: '10分钟前' },
+                     { id: 'R2', title: '高二期中语文模拟试卷与解析', author: '李明 (高二语文)', type: 'question', label: '题库', aiStatus: 'pass', aiMsg: '机审通过', date: '1小时前' },
+                     { id: 'R3', title: '《赤壁赋》情景沉浸式教案', author: '张静 (高一语文)', type: 'courseware', label: '课件', aiStatus: 'excellent', aiMsg: '含高质量原创配图', date: '3小时前' },
+                   ].filter(item => resourceFilter === 'all' || item.type === resourceFilter).map(item => (
+                     <div key={item.id} className="flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-2xl hover:border-teal-500/30 hover:bg-white/10 transition-all">
+                       <div className="flex items-center gap-5">
+                         <div className={`p-3 rounded-xl border ${item.type === 'courseware' ? 'bg-blue-500/10 border-blue-500/30 text-blue-400' : 'bg-purple-500/10 border-purple-500/30 text-purple-400'}`}>
+                           {item.type === 'courseware' ? <FileText className="w-5 h-5"/> : <Database className="w-5 h-5"/>}
+                         </div>
+                         <div>
+                           <div className="flex items-center gap-3 mb-1">
+                             <span className="font-bold text-white text-base">{item.title}</span>
+                             {item.aiStatus === 'warn' && <span className="flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 border border-rose-500/20"><AlertTriangle className="w-3 h-3"/> {item.aiMsg}</span>}
+                             {item.aiStatus === 'pass' && <span className="flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-green-500/10 text-green-400 border border-green-500/20"><CheckCircle2 className="w-3 h-3"/> {item.aiMsg}</span>}
+                             {item.aiStatus === 'excellent' && <span className="flex items-center gap-1 text-xs px-2 py-0.5 rounded bg-yellow-500/10 text-yellow-400 border border-yellow-500/20"><Sparkles className="w-3 h-3"/> {item.aiMsg}</span>}
+                           </div>
+                           <div className="text-sm text-slate-400 flex items-center gap-4">
+                             <span>提交人: {item.author}</span>
+                             <span>提交时间: {item.date}</span>
+                           </div>
+                         </div>
+                       </div>
+                       <button 
+                         onClick={() => setSelectedResourceAudit(item)}
+                         className="px-5 py-2 bg-teal-500/10 hover:bg-teal-500 hover:text-[#0f172a] text-teal-400 text-sm font-bold rounded-xl transition-colors border border-teal-500/30"
+                       >
+                         开始审核
+                       </button>
+                     </div>
+                   ))}
+                 </div>
+               </div>
+
+               {/* Resource Audit Detail Modal */}
+               {selectedResourceAudit && (
+                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                   <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedResourceAudit(null)}></div>
+                   <div className="relative w-full max-w-5xl h-[80vh] bg-[#0f172a] border border-teal-500/30 rounded-3xl shadow-2xl flex overflow-hidden animate-fade-in">
+                     
+                     {/* Left: Resource Preview (Mock) */}
+                     <div className="w-2/3 bg-[#030712] border-r border-white/5 flex flex-col relative">
+                       <div className="h-14 border-b border-white/5 flex items-center px-6 justify-between bg-white/[0.02]">
+                         <div className="flex items-center gap-2 text-white font-bold">
+                           {selectedResourceAudit.type === 'courseware' ? <FileText className="w-4 h-4 text-blue-400"/> : <Database className="w-4 h-4 text-purple-400"/>}
+                           {selectedResourceAudit.title}
+                         </div>
+                         <div className="text-xs text-slate-400 flex items-center gap-2">
+                           <User className="w-3 h-3"/> {selectedResourceAudit.author}
+                         </div>
+                       </div>
+                       <div className="flex-1 flex items-center justify-center p-8 relative">
+                         {/* Watermark */}
+                         <div className="absolute inset-0 flex items-center justify-center opacity-5 pointer-events-none">
+                           <span className="text-6xl font-black rotate-[-30deg]">INTERNAL REVIEW</span>
+                         </div>
+                         <div className="w-full h-full bg-white text-black rounded-xl p-8 shadow-2xl overflow-hidden relative">
+                           {selectedResourceAudit.id === 'R1' && (
+                             <div className="h-full flex flex-col justify-center items-center text-center">
+                               <h1 className="text-4xl font-black text-slate-800 mb-6">牛顿第二定律综合应用复习</h1>
+                               <p className="text-xl text-slate-600 mb-12">高一物理组 / 2024春季</p>
+                               <div className="w-full max-w-md h-40 bg-slate-100 rounded-xl flex items-center justify-center border-2 border-dashed border-slate-300">
+                                 <span className="text-slate-400 font-medium">典型例题 1：滑块木板模型演示</span>
+                               </div>
+                             </div>
+                           )}
+                           {selectedResourceAudit.id === 'R2' && (
+                             <div className="space-y-6 text-left">
+                               <h2 className="text-2xl font-bold border-b pb-4">高二期中语文模拟试卷 (部分)</h2>
+                               <div>
+                                 <h3 className="font-bold mb-2">一、现代文阅读 (35分)</h3>
+                                 <p className="text-slate-600 text-sm leading-relaxed text-justify indent-8">材料一：数字人文作为一种新兴的跨学科研究范式，正深刻地改变着传统的人文学科研究。它不仅提供了处理海量文本数据的新工具，更重要的是，它催生了新的问题意识和阐释维度...</p>
+                               </div>
+                             </div>
+                           )}
+                           {selectedResourceAudit.id === 'R3' && (
+                             <div className="h-full bg-slate-900 text-white rounded-xl p-8 flex flex-col justify-between">
+                               <div>
+                                 <h2 className="text-3xl font-serif mb-2">《赤壁赋》</h2>
+                                 <p className="text-indigo-300 font-serif">苏轼 / 北宋</p>
+                               </div>
+                               <div className="w-full h-48 bg-gradient-to-t from-indigo-900/50 to-transparent rounded-xl flex items-end p-4 border border-indigo-500/30">
+                                 <p className="font-serif text-lg text-indigo-100">“壬戌之秋，七月既望，苏子与客泛舟游于赤壁之下...”</p>
+                               </div>
+                             </div>
+                           )}
+                         </div>
+                       </div>
+                     </div>
+
+                     {/* Right: AI Audit Report */}
+                     <div className="w-1/3 flex flex-col bg-gradient-to-b from-[#0f172a] to-[#030712]">
+                       <div className="h-14 border-b border-white/5 flex items-center px-6 justify-between shrink-0">
+                         <span className="font-bold text-white flex items-center gap-2"><Bot className="w-4 h-4 text-teal-400"/> AI 审查报告</span>
+                         <button onClick={() => setSelectedResourceAudit(null)} className="text-slate-400 hover:text-white transition-colors">
+                           <XCircle className="w-5 h-5"/>
+                         </button>
+                       </div>
+                       
+                       <div className="flex-1 p-6 overflow-y-auto space-y-6 custom-scrollbar">
+                         {selectedResourceAudit.aiStatus === 'warn' && (
+                           <div className="bg-rose-500/10 border border-rose-500/20 rounded-2xl p-5">
+                             <div className="flex items-center gap-2 text-rose-400 font-bold mb-2"><AlertTriangle className="w-5 h-5"/> 查重预警触发</div>
+                             <p className="text-sm text-rose-200/80 leading-relaxed mb-4">
+                               该课件中“典型例题 1~4”与互联网公开题库《2023学科网高一物理大复习》内容重合度达 <span className="font-bold text-white">85%</span>。未进行本校学情针对性改编（如添加往年校考错题数据）。
+                             </p>
+                             <div className="text-xs text-slate-400">AI 建议处理：退回修改，要求增加原创校本变式题。</div>
+                           </div>
+                         )}
+
+                         {selectedResourceAudit.aiStatus === 'pass' && (
+                           <div className="bg-green-500/10 border border-green-500/20 rounded-2xl p-5">
+                             <div className="flex items-center gap-2 text-green-400 font-bold mb-2"><CheckCircle2 className="w-5 h-5"/> 机审常规通过</div>
+                             <p className="text-sm text-green-200/80 leading-relaxed mb-4">
+                               试题原创度 68%（达标），未发现知识点明显错漏。答案解析排版规范。但缺乏配图，视觉效果一般。
+                             </p>
+                             <div className="text-xs text-slate-400">AI 建议处理：可直接通过入库。</div>
+                           </div>
+                         )}
+
+                         {selectedResourceAudit.aiStatus === 'excellent' && (
+                           <div className="bg-yellow-500/10 border border-yellow-500/20 rounded-2xl p-5">
+                             <div className="flex items-center gap-2 text-yellow-400 font-bold mb-2"><Sparkles className="w-5 h-5"/> 优质原创资产</div>
+                             <p className="text-sm text-yellow-200/80 leading-relaxed mb-4">
+                               课件排版精美（色彩搭配合理），文本原创度 92%。引用的拓展阅读材料（史料）考证准确。包含 2 页学生互动环节设计，极具示范价值。
+                             </p>
+                             <div className="text-xs text-slate-400">AI 建议处理：打上“精品推荐”标签并设为组内公开。</div>
+                           </div>
+                         )}
+
+                         <div className="space-y-3">
+                           <h5 className="text-xs font-bold text-slate-500 uppercase">结构分析特征</h5>
+                           <div className="flex justify-between items-center bg-white/5 px-4 py-2 rounded-lg text-sm text-slate-300">
+                             <span>版面清晰度</span>
+                             <span className="font-bold text-white">A-</span>
+                           </div>
+                           <div className="flex justify-between items-center bg-white/5 px-4 py-2 rounded-lg text-sm text-slate-300">
+                             <span>知识体系完整性</span>
+                             <span className="font-bold text-white">B+</span>
+                           </div>
+                           <div className="flex justify-between items-center bg-white/5 px-4 py-2 rounded-lg text-sm text-slate-300">
+                             <span>互动/思考题占比</span>
+                             <span className="font-bold text-white">15%</span>
+                           </div>
+                         </div>
+                       </div>
+
+                       <div className="p-6 border-t border-white/5 bg-white/[0.02] flex flex-col gap-3 shrink-0">
+                         {selectedResourceAudit.aiStatus === 'warn' ? (
+                           <>
+                             <button 
+                               onClick={() => setSelectedResourceAudit(null)}
+                               className="w-full py-3 bg-rose-500 hover:bg-rose-600 text-white rounded-xl font-bold transition-colors shadow-[0_0_15px_rgba(244,63,94,0.4)]"
+                             >
+                               一键驳回并附送 AI 优化建议
+                             </button>
+                             <button className="w-full py-3 bg-white/5 hover:bg-white/10 text-slate-300 rounded-xl font-bold transition-colors">
+                               忽略查重，强制通过
+                             </button>
+                           </>
+                         ) : (
+                           <>
+                             <button 
+                               onClick={() => setSelectedResourceAudit(null)}
+                               className="w-full py-3 bg-teal-500 hover:bg-teal-400 text-[#0f172a] rounded-xl font-bold transition-colors shadow-[0_0_15px_rgba(20,184,166,0.4)]"
+                             >
+                               批准入库 (加盖校本印记)
+                             </button>
+                             <button className="w-full py-3 bg-white/5 hover:bg-white/10 text-rose-300 hover:text-rose-400 rounded-xl font-bold transition-colors border border-transparent hover:border-rose-500/30">
+                               人工驳回
+                             </button>
+                           </>
+                         )}
+                       </div>
+                     </div>
+                   </div>
+                 </div>
+               )}
             </div>
           )}
 
@@ -915,12 +1154,164 @@ const ManagementFlowPage = () => {
                <div className="flex justify-between items-end mb-6">
                  <div>
                    <h3 className="text-2xl font-black text-white flex items-center gap-2"><Star className="text-teal-400"/> 科体美特色项目统筹管理</h3>
-                   <p className="text-slate-400 mt-1">校园创客节项目资金审批、数字美术展馆资产统筹、特色课程选课容量大盘。</p>
+                   <p className="text-slate-400 mt-1">统筹科技创客、高水平运动队、艺术展演等专项资金与核心资产，监控特色选修课容量。</p>
                  </div>
                </div>
-               <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-16 text-center text-slate-500">
-                 <Star className="w-16 h-16 mx-auto mb-4 text-white/10" />
-                 模块统筹加载中...
+
+               {/* Tech, Sports, Arts Overview Cards */}
+               <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                 <div className="bg-gradient-to-br from-indigo-500/10 to-transparent border border-indigo-500/20 rounded-2xl p-6 relative overflow-hidden group hover:border-indigo-500/40 transition-colors">
+                   <div className="absolute -top-4 -right-4 p-4 opacity-10 group-hover:scale-110 transition-transform">
+                     <Rocket className="w-24 h-24" />
+                   </div>
+                   <div className="text-sm font-bold text-indigo-300 mb-4 flex items-center gap-2"><Rocket className="w-4 h-4"/> 科技创客类项目</div>
+                   <div className="flex justify-between items-end">
+                     <div>
+                       <div className="text-3xl font-black text-white">¥ 12.5万</div>
+                       <div className="text-xs text-slate-400 mt-1">本学期专项资金执行率 68%</div>
+                     </div>
+                     <div className="text-right">
+                       <div className="text-lg font-bold text-indigo-400">4</div>
+                       <div className="text-xs text-indigo-300/60">进行中大项目</div>
+                     </div>
+                   </div>
+                 </div>
+
+                 <div className="bg-gradient-to-br from-orange-500/10 to-transparent border border-orange-500/20 rounded-2xl p-6 relative overflow-hidden group hover:border-orange-500/40 transition-colors">
+                   <div className="absolute -top-4 -right-4 p-4 opacity-10 group-hover:scale-110 transition-transform">
+                     <Dumbbell className="w-24 h-24" />
+                   </div>
+                   <div className="text-sm font-bold text-orange-300 mb-4 flex items-center gap-2"><Dumbbell className="w-4 h-4"/> 体育高水平资产</div>
+                   <div className="flex justify-between items-end">
+                     <div>
+                       <div className="text-3xl font-black text-white">92%</div>
+                       <div className="text-xs text-slate-400 mt-1">核心场馆本周预约饱和度</div>
+                     </div>
+                     <div className="text-right">
+                       <div className="text-lg font-bold text-orange-400">125</div>
+                       <div className="text-xs text-orange-300/60">校队注册生</div>
+                     </div>
+                   </div>
+                 </div>
+
+                 <div className="bg-gradient-to-br from-pink-500/10 to-transparent border border-pink-500/20 rounded-2xl p-6 relative overflow-hidden group hover:border-pink-500/40 transition-colors">
+                   <div className="absolute -top-4 -right-4 p-4 opacity-10 group-hover:scale-110 transition-transform">
+                     <Palette className="w-24 h-24" />
+                   </div>
+                   <div className="text-sm font-bold text-pink-300 mb-4 flex items-center gap-2"><Palette className="w-4 h-4"/> 艺术美育成果库</div>
+                   <div className="flex justify-between items-end">
+                     <div>
+                       <div className="text-3xl font-black text-white">3,240</div>
+                       <div className="text-xs text-slate-400 mt-1">数字美术馆本月访客量</div>
+                     </div>
+                     <div className="text-right">
+                       <div className="text-lg font-bold text-pink-400">3</div>
+                       <div className="text-xs text-pink-300/60">市级金奖</div>
+                     </div>
+                   </div>
+                 </div>
+               </div>
+
+               <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                 {/* Left: Project List */}
+                 <div className="col-span-2 bg-[#0f172a] border border-teal-500/20 rounded-3xl p-6 shadow-2xl">
+                   <div className="flex justify-between items-center mb-6">
+                     <h4 className="text-lg font-bold text-white flex items-center gap-2">
+                       <Star className="w-5 h-5 text-teal-400"/> 重点项目立项与审批
+                     </h4>
+                     <div className="flex bg-white/5 rounded-lg p-1">
+                       {['all', 'tech', 'sports', 'art'].map((type) => (
+                         <button 
+                           key={type}
+                           className={`px-4 py-1.5 rounded-md text-sm font-medium transition-colors ${techFilter === type ? 'bg-teal-500 text-white' : 'text-slate-400 hover:text-white'}`}
+                           onClick={() => setTechFilter(type)}
+                         >
+                           {type === 'all' ? '全部' : type === 'tech' ? '科技' : type === 'sports' ? '体育' : '艺术'}
+                         </button>
+                       ))}
+                     </div>
+                   </div>
+
+                   <div className="space-y-4">
+                     {[
+                       { id: 'T1', title: '第十四届校园科技创客节专项赛', domain: 'tech', type: '资金下拨', status: 'pending', amount: '¥ 45,000', applicant: '信息技术科组', icon: Rocket, color: 'indigo' },
+                       { id: 'S1', title: '新建 AI 辅助击剑体能训练馆改造', domain: 'sports', type: '场地立项', status: 'approved', amount: '¥ 120,000', applicant: '体育科组', icon: Dumbbell, color: 'orange' },
+                       { id: 'A1', title: '秋季数字校园合唱节与版权注册', domain: 'art', type: '综合资产', status: 'pending', amount: '¥ 15,000', applicant: '音乐科组', icon: Palette, color: 'pink' }
+                     ].filter(item => techFilter === 'all' || item.domain === techFilter).map(item => (
+                       <div key={item.id} className="flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-2xl hover:border-teal-500/30 transition-all">
+                         <div className="flex items-center gap-4">
+                           <div className={`p-3 rounded-xl bg-${item.color}-500/10 border border-${item.color}-500/30 text-${item.color}-400`}>
+                             <item.icon className="w-5 h-5" />
+                           </div>
+                           <div>
+                             <div className="font-bold text-white mb-1">{item.title}</div>
+                             <div className="text-sm text-slate-400 flex items-center gap-3">
+                               <span>申报人: {item.applicant}</span>
+                               <span className="w-1 h-1 rounded-full bg-slate-600"></span>
+                               <span>类别: {item.type}</span>
+                               <span className="w-1 h-1 rounded-full bg-slate-600"></span>
+                               <span className="font-mono text-teal-400">{item.amount}</span>
+                             </div>
+                           </div>
+                         </div>
+                         <div>
+                           {item.status === 'pending' ? (
+                             <button className="px-4 py-2 bg-teal-500 hover:bg-teal-400 text-[#0f172a] text-sm font-bold rounded-xl transition-colors shadow-[0_0_10px_rgba(20,184,166,0.3)]">
+                               审核资金
+                             </button>
+                           ) : (
+                             <div className="flex items-center gap-1 text-green-400 text-sm font-bold px-4 py-2 bg-green-500/10 rounded-xl border border-green-500/20">
+                               <CheckCircle2 className="w-4 h-4"/> 已拨付
+                             </div>
+                           )}
+                         </div>
+                       </div>
+                     ))}
+                   </div>
+                 </div>
+
+                 {/* Right: Elective Course Capacity Map */}
+                 <div className="col-span-1 bg-[#0f172a] border border-teal-500/20 rounded-3xl p-6 shadow-2xl flex flex-col">
+                   <h4 className="text-lg font-bold text-white flex items-center gap-2 mb-6">
+                     <BarChart2 className="w-5 h-5 text-teal-400"/> 特色选修课容量大盘
+                   </h4>
+                   <div className="space-y-6 flex-1">
+                     <div>
+                       <div className="flex justify-between items-end mb-2">
+                         <div className="text-sm font-bold text-slate-200">3D 打印与开源硬件 (高一)</div>
+                         <div className="text-xs font-bold text-rose-400">已爆满 (45/45)</div>
+                       </div>
+                       <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
+                         <div className="h-full bg-rose-500 w-[100%] rounded-full shadow-[0_0_10px_#f43f5e]"></div>
+                       </div>
+                       <div className="text-xs text-slate-500 mt-2">AI 建议: 下学期增开 1 个平行班</div>
+                     </div>
+                     
+                     <div>
+                       <div className="flex justify-between items-end mb-2">
+                         <div className="text-sm font-bold text-slate-200">现代数字版画艺术</div>
+                         <div className="text-xs font-bold text-teal-400">热报中 (38/40)</div>
+                       </div>
+                       <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
+                         <div className="h-full bg-teal-400 w-[95%] rounded-full shadow-[0_0_10px_#2dd4bf]"></div>
+                       </div>
+                     </div>
+
+                     <div>
+                       <div className="flex justify-between items-end mb-2">
+                         <div className="text-sm font-bold text-slate-200">击剑基础与体能实训</div>
+                         <div className="text-xs font-bold text-orange-400">余量充足 (12/30)</div>
+                       </div>
+                       <div className="h-2 w-full bg-white/10 rounded-full overflow-hidden">
+                         <div className="h-full bg-orange-400 w-[40%] rounded-full"></div>
+                       </div>
+                       <div className="text-xs text-slate-500 mt-2">AI 建议: 联动家长端下发特色课推荐通知</div>
+                     </div>
+                   </div>
+                   <button className="w-full mt-6 py-3 bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white text-sm font-bold rounded-xl transition-colors border border-white/10">
+                     调整特色课容与排课权重
+                   </button>
+                 </div>
                </div>
             </div>
           )}
