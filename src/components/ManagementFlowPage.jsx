@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { 
   Building2, LineChart, ShieldCheck, Lock,
-  Briefcase, Wrench, ArrowLeft,
+  Briefcase, Wrench, ArrowLeft, ArrowRight,
   LayoutDashboard, AlertTriangle, FileText, CheckCircle2,
   XCircle, Clock, Search, Bell,
   UserCog, GraduationCap, Users, Shield, Megaphone, Settings,
@@ -63,6 +63,11 @@ const ManagementFlowPage = () => {
   const [academicGradeFilter, setAcademicGradeFilter] = useState('高一');
   const [academicSubjectFilter, setAcademicSubjectFilter] = useState('全部');
   const [selectedAcademicRisk, setSelectedAcademicRisk] = useState(null);
+
+  // 综素归档中心
+  const [showArchiveModal, setShowArchiveModal] = useState(false);
+  const [selectedAuditStudent, setSelectedAuditStudent] = useState(null);
+  const [archiveStatus, setArchiveStatus] = useState('checking'); // checking, ready, archiving, done
 
   const navigateHome = () => {
     if (window.navigateToPage) window.navigateToPage('home');
@@ -403,20 +408,249 @@ const ManagementFlowPage = () => {
 
           {/* TAB: QUALITY EVALUATION */}
           {activeTab === 'quality-eval' && (
-            <div className="space-y-6 animate-fade-in max-w-6xl mx-auto pb-10">
+            <div className="space-y-6 animate-fade-in max-w-6xl mx-auto pb-10 relative">
                <div className="flex justify-between items-end mb-6">
                  <div>
                    <h3 className="text-2xl font-black text-white flex items-center gap-2"><Award className="text-yellow-400"/> 综合素质档案归档中心</h3>
-                   <p className="text-slate-400 mt-1">汇总多维发展数据，期末一键生成全校学生综素报告单，对接市级教育局接口。</p>
+                   <p className="text-slate-400 mt-1">汇总多维发展数据，期末一键生成全校学生综素报告单，支持 AI 辅助复核与教育局接口直连。</p>
                  </div>
-                 <button className="px-4 py-2 bg-yellow-500/20 text-yellow-400 border border-yellow-500/30 rounded-xl hover:bg-yellow-500/30 transition-colors font-bold">
-                   一键封卷归档 (本学期)
+                 <button 
+                   onClick={() => setShowArchiveModal(true)}
+                   className="px-6 py-2.5 bg-yellow-500 hover:bg-yellow-400 text-[#030712] rounded-xl font-bold shadow-[0_0_15px_rgba(234,179,8,0.3)] transition-all flex items-center gap-2"
+                 >
+                   <Lock className="w-4 h-4"/> 一键封卷归档 (本学期)
                  </button>
                </div>
-               <div className="bg-white/[0.03] border border-white/10 rounded-2xl p-16 text-center text-slate-500">
-                 <Award className="w-16 h-16 mx-auto mb-4 text-white/10" />
-                 本学期各年级“德智体美劳”五育评分计算中... <br/> 进度：高一年级 (92%), 高二年级 (85%)
+
+               {/* Progress Dashboards */}
+               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
+                 {[
+                   { label: '德育 (考勤/处分)', progress: 100, color: 'bg-green-500' },
+                   { label: '智育 (期末成绩)', progress: 92, color: 'bg-blue-500' },
+                   { label: '体育 (体测/打卡)', progress: 98, color: 'bg-orange-500' },
+                   { label: '美劳 (作品/实践)', progress: 85, color: 'bg-purple-500' },
+                 ].map(item => (
+                   <div key={item.label} className="bg-white/[0.03] border border-white/10 rounded-2xl p-5">
+                     <div className="text-xs text-slate-400 mb-2">{item.label} 数据采集率</div>
+                     <div className="flex items-end gap-2 mb-3">
+                       <span className="text-3xl font-black text-white">{item.progress}</span>
+                       <span className="text-sm text-slate-500 mb-1">%</span>
+                     </div>
+                     <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden">
+                       <div className={`h-full ${item.color}`} style={{ width: `${item.progress}%` }}></div>
+                     </div>
+                   </div>
+                 ))}
                </div>
+
+               {/* Manual Audit List */}
+               <div className="bg-[#0f172a] border border-indigo-500/20 rounded-3xl p-6 relative overflow-hidden shadow-2xl">
+                 <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-[80px]"></div>
+                 <h4 className="text-lg font-bold text-white mb-4 relative z-10 flex items-center gap-2">
+                   <ShieldCheck className="w-5 h-5 text-indigo-400"/> 异常/特殊档案人工复核队列
+                 </h4>
+                 <div className="space-y-3 relative z-10">
+                   {[
+                     { id: '1', name: '林可', class: '高一(1)班', type: '科创特长', desc: '获全国青少年信息学奥林匹克联赛一等奖', status: '待审核' },
+                     { id: '2', name: '赵宇', class: '高二(3)班', type: '成绩波动', desc: '智育雷达图较上学期收缩 25%，需班主任补充评语', status: '待审核' },
+                     { id: '3', name: '陈思思', class: '高一(5)班', type: '艺术考级', desc: '上传了中央音乐学院小提琴十级证书', status: '已通过' },
+                   ].map(student => (
+                     <div key={student.id} className="flex items-center justify-between p-4 bg-white/5 border border-white/10 rounded-2xl hover:bg-white/10 transition-colors">
+                       <div className="flex items-center gap-4">
+                         <div className="w-10 h-10 rounded-full bg-indigo-500/20 flex items-center justify-center border border-indigo-500/30 text-indigo-300 font-bold">
+                           {student.name[0]}
+                         </div>
+                         <div>
+                           <div className="flex items-center gap-2 mb-1">
+                             <span className="font-bold text-white">{student.name}</span>
+                             <span className="text-xs text-slate-400">{student.class}</span>
+                             <span className={`text-xs px-2 py-0.5 rounded border ${
+                               student.type.includes('波动') ? 'bg-orange-500/10 text-orange-400 border-orange-500/30' : 'bg-purple-500/10 text-purple-400 border-purple-500/30'
+                             }`}>
+                               {student.type}
+                             </span>
+                           </div>
+                           <div className="text-sm text-slate-300">{student.desc}</div>
+                         </div>
+                       </div>
+                       <div>
+                         {student.status === '待审核' ? (
+                           <button 
+                             onClick={() => setSelectedAuditStudent(student)}
+                             className="px-4 py-2 bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-bold rounded-xl transition-colors shadow-lg"
+                           >
+                             复核档案
+                           </button>
+                         ) : (
+                           <span className="text-sm font-medium text-green-400 flex items-center gap-1">
+                             <CheckCircle2 className="w-4 h-4"/> 已通过
+                           </span>
+                         )}
+                       </div>
+                     </div>
+                   ))}
+                 </div>
+               </div>
+
+               {/* Drill-down Modal for Student Audit */}
+               {selectedAuditStudent && (
+                 <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+                   <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setSelectedAuditStudent(null)}></div>
+                   <div className="relative w-full max-w-4xl bg-[#0f172a] border border-indigo-500/30 rounded-3xl p-8 shadow-2xl animate-fade-in grid grid-cols-2 gap-8">
+                     <button 
+                       onClick={() => setSelectedAuditStudent(null)}
+                       className="absolute top-6 right-6 p-2 text-slate-400 hover:text-white bg-white/5 rounded-full transition-colors z-10"
+                     >
+                       <XCircle className="w-6 h-6"/>
+                     </button>
+                     
+                     {/* Left: Radar Chart Mock */}
+                     <div className="flex flex-col items-center justify-center p-6 bg-white/[0.02] rounded-2xl border border-white/5">
+                       <h4 className="text-lg font-bold text-white mb-6">期末五育雷达图 (AI 生成)</h4>
+                       <div className="relative w-64 h-64 flex items-center justify-center">
+                         {/* Simple Mock Radar Visual */}
+                         <Orbit className="absolute w-full h-full text-indigo-500/20 animate-[spin_20s_linear_infinite]" strokeWidth={1} />
+                         <div className="absolute w-48 h-48 border border-indigo-500/40 rounded-full"></div>
+                         <div className="absolute w-32 h-32 border border-indigo-500/30 rounded-full"></div>
+                         <div className="absolute w-16 h-16 border border-indigo-500/20 rounded-full"></div>
+                         <svg className="absolute inset-0 w-full h-full z-10" viewBox="0 0 100 100">
+                           <polygon points="50,10 90,40 75,90 25,90 10,40" fill="rgba(99, 102, 241, 0.2)" stroke="#818cf8" strokeWidth="1.5" />
+                           {/* Points */}
+                           <circle cx="50" cy="10" r="2" fill="#fff" />
+                           <circle cx="90" cy="40" r="2" fill="#fff" />
+                           <circle cx="75" cy="90" r="2" fill="#fff" />
+                           <circle cx="25" cy="90" r="2" fill="#fff" />
+                           <circle cx="10" cy="40" r="2" fill="#fff" />
+                         </svg>
+                         {/* Labels */}
+                         <span className="absolute top-0 -mt-6 text-xs text-slate-300">智育 (95)</span>
+                         <span className="absolute right-0 -mr-10 text-xs text-slate-300">体育 (88)</span>
+                         <span className="absolute bottom-0 -mb-6 ml-16 text-xs text-slate-300">劳育 (82)</span>
+                         <span className="absolute bottom-0 -mb-6 -ml-16 text-xs text-slate-300">美育 (90)</span>
+                         <span className="absolute left-0 -ml-10 text-xs text-slate-300">德育 (100)</span>
+                       </div>
+                     </div>
+
+                     {/* Right: AI Summary & Actions */}
+                     <div className="flex flex-col h-full">
+                       <div className="mb-6">
+                         <h3 className="text-2xl font-black text-white">{selectedAuditStudent.name}</h3>
+                         <div className="text-sm text-slate-400 mt-1">{selectedAuditStudent.class}</div>
+                       </div>
+                       
+                       <div className="flex-1 bg-white/5 rounded-2xl p-5 border border-white/5 mb-6 overflow-y-auto">
+                         <h4 className="text-sm font-bold text-indigo-300 mb-3 flex items-center gap-2"><Sparkles className="w-4 h-4"/> AI 期末综素评语草稿</h4>
+                         <p className="text-sm text-slate-300 leading-relaxed">
+                           该生本学期在智育方面表现突出，理科思维逻辑严密。尤其在科技素养培养中，{selectedAuditStudent.desc}，展现了极强的创新探究能力与动手实践精神。德育表现优异，无违纪记录。建议在接下来的学习中，可适当增加体育锻炼的频次，以更充沛的精力迎接高强度学习。
+                         </p>
+                       </div>
+
+                       <div className="flex gap-3">
+                         <button className="flex-1 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold transition-colors border border-white/10">
+                           退回修改
+                         </button>
+                         <button 
+                           onClick={() => setSelectedAuditStudent(null)}
+                           className="flex-1 py-3 bg-indigo-500 hover:bg-indigo-600 text-white rounded-xl font-bold transition-colors shadow-[0_0_15px_rgba(99,102,241,0.4)]"
+                         >
+                           审核通过并归档
+                         </button>
+                       </div>
+                     </div>
+                   </div>
+                 </div>
+               )}
+
+               {/* Pre-check Modal for Archiving */}
+               {showArchiveModal && (
+                 <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+                   <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => archiveStatus !== 'archiving' && setShowArchiveModal(false)}></div>
+                   <div className="relative w-full max-w-md bg-[#0a0a0a] border border-white/10 rounded-3xl p-8 shadow-2xl animate-fade-in text-center">
+                     {archiveStatus === 'checking' && (
+                       <>
+                         <div className="w-16 h-16 rounded-full bg-blue-500/20 flex items-center justify-center mx-auto mb-6">
+                           <Search className="w-8 h-8 text-blue-400 animate-pulse" />
+                         </div>
+                         <h3 className="text-xl font-bold text-white mb-2">执行封卷前置校验...</h3>
+                         <p className="text-sm text-slate-400 mb-6">正在检查全校 4250 名学生的底表数据完整度</p>
+                         <div className="space-y-3 text-left">
+                           <div className="flex items-center justify-between text-sm">
+                             <span className="text-slate-300">教务成绩库接入</span>
+                             <span className="text-green-400 font-bold flex items-center gap-1"><CheckCircle2 className="w-4 h-4"/> 100%</span>
+                           </div>
+                           <div className="flex items-center justify-between text-sm">
+                             <span className="text-slate-300">教师评语与 AI 审核</span>
+                             <span className="text-green-400 font-bold flex items-center gap-1"><CheckCircle2 className="w-4 h-4"/> 100%</span>
+                           </div>
+                           <div className="flex items-center justify-between text-sm">
+                             <span className="text-slate-300">特殊档案人工复核</span>
+                             <span className="text-orange-400 font-bold flex items-center gap-1"><AlertTriangle className="w-4 h-4"/> 剩余 2 人</span>
+                           </div>
+                         </div>
+                         <button 
+                           onClick={() => setArchiveStatus('ready')}
+                           className="w-full mt-8 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl font-bold transition-colors border border-white/10"
+                         >
+                           忽略警告并继续
+                         </button>
+                       </>
+                     )}
+
+                     {archiveStatus === 'ready' && (
+                       <>
+                         <div className="w-16 h-16 rounded-full bg-yellow-500/20 flex items-center justify-center mx-auto mb-6">
+                           <Lock className="w-8 h-8 text-yellow-400" />
+                         </div>
+                         <h3 className="text-xl font-bold text-white mb-2">确认加盖数字公章封卷？</h3>
+                         <p className="text-sm text-slate-400 mb-6 leading-relaxed">
+                           归档后将生成本学期全校不可篡改的《综合素质评价报告单》凭证，并自动对接市教育局“一网通办”接口。此操作不可逆。
+                         </p>
+                         <div className="flex gap-3">
+                           <button 
+                             onClick={() => { setShowArchiveModal(false); setArchiveStatus('checking'); }}
+                             className="flex-1 py-3 bg-white/5 hover:bg-white/10 text-white rounded-xl font-bold transition-colors"
+                           >
+                             取消
+                           </button>
+                           <button 
+                             onClick={() => {
+                               setArchiveStatus('archiving');
+                               setTimeout(() => setArchiveStatus('done'), 2000);
+                             }}
+                             className="flex-1 py-3 bg-yellow-500 hover:bg-yellow-400 text-[#030712] rounded-xl font-bold transition-colors shadow-[0_0_15px_rgba(234,179,8,0.4)]"
+                           >
+                             确认归档
+                           </button>
+                         </div>
+                       </>
+                     )}
+
+                     {archiveStatus === 'archiving' && (
+                       <div className="py-8">
+                         <div className="w-16 h-16 border-4 border-yellow-500/30 border-t-yellow-500 rounded-full animate-spin mx-auto mb-6"></div>
+                         <h3 className="text-xl font-bold text-white mb-2">正在加密打包并上传...</h3>
+                         <p className="text-sm text-slate-400">正在生成区块哈希码...</p>
+                       </div>
+                     )}
+
+                     {archiveStatus === 'done' && (
+                       <div className="py-8">
+                         <div className="w-16 h-16 rounded-full bg-green-500/20 flex items-center justify-center mx-auto mb-6">
+                           <CheckCircle2 className="w-8 h-8 text-green-400" />
+                         </div>
+                         <h3 className="text-xl font-bold text-white mb-2">归档圆满完成</h3>
+                         <p className="text-sm text-slate-400 mb-8">4250 份综合素质档案已成功上报教育局接口。</p>
+                         <button 
+                           onClick={() => { setShowArchiveModal(false); setArchiveStatus('checking'); }}
+                           className="w-full py-3 bg-green-500 hover:bg-green-400 text-[#030712] rounded-xl font-bold transition-colors shadow-[0_0_15px_rgba(34,197,94,0.4)]"
+                         >
+                           返回大盘
+                         </button>
+                       </div>
+                     )}
+                   </div>
+                 </div>
+               )}
             </div>
           )}
 
