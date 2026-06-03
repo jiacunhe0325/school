@@ -1,0 +1,173 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color: #0f172a;
+  background: #f8fafc;
+  font-family: 'Inter', 'Aptos', 'Segoe UI', 'PingFang SC', sans-serif;
+  --panel-border: rgba(255, 255, 255, 0.1);
+  --panel-bg: rgba(255, 255, 255, 0.03);
+  --panel-bg-strong: rgba(255, 255, 255, 0.08);
+  --panel-shadow: 0 16px 40px -16px rgba(0, 0, 0, 0.5);
+  --panel-shadow-strong: 0 24px 60px -20px rgba(0, 0, 0, 0.6);
+  --text-soft: #94a3b8;
+}
+
+html {
+  scroll-behavior: smooth;
+  background-color: #030712; 
+}
+
+body {
+  margin: 0;
+  min-width: 320px;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* { box-sizing: border-box; }
+
+/* Animations */
+@keyframes mesh-pulse {
+  0% { transform: scale(1) translate(0, 0) rotate(0deg); opacity: 0.8; }
+  33% { transform: scale(1.1) translate(2%, 2%) rotate(2deg); opacity: 0.6; }
+  66% { transform: scale(0.95) translate(-1%, -2%) rotate(-1deg); opacity: 0.9; }
+  100% { transform: scale(1) translate(0, 0) rotate(0deg); opacity: 0.8; }
+}
+
+@keyframes float-slow {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-15px); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -1000px 0; }
+  100% { background-position: 1000px 0; }
+}
+
+@keyframes marquee-infinite {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-mesh { animation: mesh-pulse 15s ease-in-out infinite alternate; }
+.animate-float-slow { animation: float-slow 6s ease-in-out infinite; }
+.animate-marquee { animation: marquee-infinite 40s linear infinite; }
+.animate-marquee:hover { animation-play-state: paused; }
+
+/* Global Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 10px;
+}
+::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.4); }
+
+@layer components {
+  /* Legacy app shells */
+  .app-shell { @apply min-h-screen text-slate-900; }
+  .app-shell-student, .app-shell-parent, .app-shell-teacher, .app-shell-school {
+    background:
+      radial-gradient(circle at top left, rgba(99, 102, 241, 0.12), transparent 30%),
+      radial-gradient(circle at top right, rgba(168, 85, 247, 0.1), transparent 30%),
+      linear-gradient(180deg, #f8fafc 0%, #f1f5f9 55%, #f8fafc 100%);
+  }
+
+  /* --- BENTO & HERO CLASSES --- */
+  .dark-hero-bg { @apply relative overflow-hidden bg-[#030712] text-white; }
+
+  .mesh-gradient {
+    position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    background: 
+      radial-gradient(circle at 15% 50%, rgba(79, 70, 229, 0.35), transparent 40%),
+      radial-gradient(circle at 85% 30%, rgba(147, 51, 234, 0.35), transparent 40%),
+      radial-gradient(circle at 50% 80%, rgba(234, 88, 12, 0.2), transparent 40%);
+    filter: blur(80px); z-index: 0; pointer-events: none;
+  }
+
+  .bento-card {
+    @apply relative overflow-hidden rounded-[32px] p-8 transition-all duration-500 ease-out;
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.05), 0 20px 40px -20px rgba(0,0,0,0.5);
+    backdrop-filter: blur(20px);
+  }
+  .bento-card:hover {
+    transform: translateY(-4px) scale(1.01);
+    background: rgba(255, 255, 255, 0.05);
+    border-color: rgba(255, 255, 255, 0.15);
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.1), 0 30px 60px -20px rgba(0,0,0,0.7);
+  }
+
+  .bento-grid {
+    display: grid; grid-template-columns: repeat(4, 1fr); grid-auto-rows: minmax(180px, auto); gap: 24px;
+  }
+  .bento-large { grid-column: span 2; grid-row: span 2; }
+  .bento-wide { grid-column: span 2; grid-row: span 1; }
+  .bento-square { grid-column: span 1; grid-row: span 1; }
+  .bento-tall { grid-column: span 1; grid-row: span 2; }
+
+  @media (max-width: 1024px) { .bento-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 640px) { .bento-grid { display: flex; flex-direction: column; } }
+
+  /* Typography */
+  .text-gradient {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, #fff 0%, #a5b4fc 100%);
+  }
+  .text-gradient-purple {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, #e0e7ff 0%, #d8b4fe 50%, #fcd34d 100%);
+  }
+  .text-gradient-orange {
+    @apply bg-clip-text text-transparent;
+    background-image: linear-gradient(135deg, #fed7aa 0%, #f97316 100%);
+  }
+
+  /* Controls */
+  .btn-premium {
+    @apply relative inline-flex items-center justify-center gap-2 rounded-full px-8 py-4 text-sm font-semibold text-white overflow-hidden transition-all duration-300;
+    background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2);
+    box-shadow: 0 0 20px rgba(255, 255, 255, 0.05);
+  }
+  .btn-premium:hover {
+    background: rgba(255, 255, 255, 0.15); border-color: rgba(255, 255, 255, 0.4);
+    transform: translateY(-2px);
+  }
+  .btn-premium-primary {
+    background: linear-gradient(135deg, #4f46e5 0%, #9333ea 100%);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+  }
+  .btn-premium-primary:hover {
+    background: linear-gradient(135deg, #6366f1 0%, #a855f7 100%);
+    box-shadow: 0 0 40px rgba(147, 51, 234, 0.4);
+  }
+
+  /* Masonry Grid */
+  .module-masonry { column-count: 3; column-gap: 24px; }
+  @media (max-width: 1024px) { .module-masonry { column-count: 2; } }
+  @media (max-width: 640px) { .module-masonry { column-count: 1; } }
+
+  .module-item {
+    break-inside: avoid; margin-bottom: 24px; @apply rounded-[24px] p-6;
+    background: linear-gradient(180deg, rgba(255,255,255,0.03) 0%, rgba(255,255,255,0.01) 100%);
+    border: 1px solid rgba(255, 255, 255, 0.05); transition: all 0.3s ease;
+  }
+  .module-item:hover {
+    border-color: rgba(99, 102, 241, 0.4);
+    background: linear-gradient(180deg, rgba(255,255,255,0.05) 0%, rgba(99,102,241,0.05) 100%);
+    transform: translateY(-2px);
+  }
+
+  /* Value Cards */
+  .value-card {
+    @apply relative overflow-hidden rounded-[24px] p-8 transition-all duration-500 ease-out;
+    background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05);
+  }
+  .value-card:hover {
+    background: rgba(255, 255, 255, 0.04); border-color: rgba(99, 102, 241, 0.3);
+    transform: translateY(-4px); box-shadow: 0 20px 40px -20px rgba(0,0,0,0.8);
+  }
+}

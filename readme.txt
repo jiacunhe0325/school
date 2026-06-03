@@ -1,0 +1,1 @@
+https://www.ulearning.cn/home/portal.html#/AiCourse
